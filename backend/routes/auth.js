@@ -501,34 +501,42 @@ router.post('/forgot-password', passwordResetRateLimiter, async (req, res) => {
       return res.status(404).json({ success: false, message: 'No account found with this email. Please sign up first.' });
     }
 
-    res.status(202).json({
-      success: true,
-      message: 'OTP sent to your registered email. It expires in 5 minutes.'
-    });
+    // In serverless environments, background tasks may be dropped after response.
+    // Send the OTP email within the request lifecycle for reliable delivery.
+    try {
+      const emailResult = await sendPasswordOtpEmail({
+        to: user.email,
+        username: user.username,
+        otp
+      });
 
-    // Send email asynchronously so API response remains fast under load.
-    setImmediate(async () => {
-      try {
-        const emailResult = await sendPasswordOtpEmail({
-          to: user.email,
-          username: user.username,
-          otp
-        });
-
-        if (!emailResult.sent) {
-          await User.updateOne(
-            { _id: user._id, otp: otpHash },
-            { $set: { otp: null, otpExpiry: null } }
-          );
-          console.error('❌ OTP email not sent:', emailResult.reason || 'Unknown mailer error');
-        }
-      } catch (mailError) {
+      if (!emailResult.sent) {
         await User.updateOne(
           { _id: user._id, otp: otpHash },
           { $set: { otp: null, otpExpiry: null } }
         );
-        console.error('❌ OTP email dispatch failed:', mailError.message);
+
+        return res.status(503).json({
+          success: false,
+          message: 'Unable to send OTP right now. Please try again shortly.'
+        });
       }
+    } catch (mailError) {
+      await User.updateOne(
+        { _id: user._id, otp: otpHash },
+        { $set: { otp: null, otpExpiry: null } }
+      );
+
+      console.error('❌ OTP email dispatch failed:', mailError.message);
+      return res.status(503).json({
+        success: false,
+        message: 'Unable to send OTP right now. Please try again shortly.'
+      });
+    }
+
+    return res.status(202).json({
+      success: true,
+      message: 'OTP sent to your registered email. It expires in 5 minutes.'
     });
   } catch (error) {
     console.error('❌ Forgot password error:', error.message);

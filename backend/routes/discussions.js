@@ -92,14 +92,6 @@ router.post('/', protect, enforceNoPII(['title', 'content']), async (req, res) =
 
     await discussion.populate('author', 'username avatar reputation role discussionProfileAccess');
 
-    const io = req.app.get('io');
-    if (io) {
-      io.to(`dataset:${datasetId}`).emit('discussion_added', {
-        datasetId,
-        discussion
-      });
-    }
-
     // Notify dataset contributor
     if (dataset.contributor.toString() !== req.user._id.toString()) {
       await User.findByIdAndUpdate(dataset.contributor, {
@@ -149,14 +141,6 @@ router.post('/:id/reply', protect, enforceNoPII(['content']), async (req, res) =
     await discussion.populate('author', 'username avatar reputation role discussionProfileAccess');
     await discussion.populate('replies.author', 'username avatar role discussionProfileAccess');
     await discussion.populate('deletedBy', 'username role');
-
-    const io = req.app.get('io');
-    if (io) {
-      io.to(`dataset:${discussion.dataset.toString()}`).emit('reply_added', {
-        datasetId: discussion.dataset.toString(),
-        discussion
-      });
-    }
 
     // Notify discussion author
     if (discussion.author.toString() !== req.user._id.toString()) {
