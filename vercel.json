@@ -3,22 +3,17 @@
   "buildCommand": "npm --prefix frontend run build",
   "outputDirectory": "frontend/dist",
   "functions": {
-    "backend/api/index.js": {
+    "api/**/*.js": {
       "runtime": "nodejs20.x"
     }
   },
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api",
-      "destination": "/backend/api/index.js"
+      "handle": "filesystem"
     },
     {
-      "source": "/api/(.*)",
-      "destination": "/backend/api/index.js"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
