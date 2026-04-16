@@ -1,12 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const Dataset = require('../models/Dataset');
 const User = require('../models/User');
 const AuditLog = require('../models/AuditLog');
 const { protect, optionalAuth } = require('../middleware/auth');
+const {
+  isBlobStorageConfigured,
+  isAbsoluteHttpUrl,
+  uploadBufferToBlob,
+  deleteBlobAsset
+} = require('../utils/blobStorage');
 const {
   validateDatasetListQuery,
   validateDatasetSearchQuery,
@@ -60,25 +64,30 @@ const invalidateDatasetCaches = async () => {
   }
 };
 
-// Multer config
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '../uploads');
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+const getFileExtension = (fileName = '') => {
+  const normalized = String(fileName || '').trim();
+  const dotIndex = normalized.lastIndexOf('.');
+  return dotIndex >= 0 ? normalized.slice(dotIndex).toLowerCase() : '';
+};
+
+const readUploadText = (file) => {
+  if (!file || !Buffer.isBuffer(file.buffer)) {
+    return '';
   }
-});
+
+  try {
+    return file.buffer.toString('utf8');
+  } catch {
+    return '';
+  }
+};
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 100 * 1024 * 1024 }, // 100MB
   fileFilter: (req, file, cb) => {
     const allowed = ['.csv', '.json', '.xlsx', '.xls', '.txt', '.tsv', '.parquet', '.zip', '.pptx', '.html'];
-    const ext = path.extname(file.originalname).toLowerCase();
+    const ext = getFileExtension(file.originalname);
     if (allowed.includes(ext)) cb(null, true);
     else cb(new Error(`File type ${ext} not supported`));
   }
@@ -87,8 +96,9 @@ const upload = multer({
 // Parse CSV/JSON for sample records
 const parseSampleRecords = (file) => {
   try {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const content = fs.readFileSync(file.path, 'utf8');
+    const ext = getFileExtension(file.originalname);
+    const content = readUploadText(file);
+    if (!content) return [];
 
     if (ext === '.json') {
       const data = JSON.parse(content);
@@ -119,12 +129,16 @@ const parseSampleRecords = (file) => {
 
 const extractSchema = (file) => {
   try {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const content = fs.readFileSync(file.path, 'utf8');
-    if (ext === '.csv') {
-      const headers = content.split('\n')[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    const ext = getFileExtension(file.originalname);
+    const content = readUploadText(file);
+    if (!content) return { columns: [] };
+
+    if (ext === '.csv' || ext === '.tsv') {
+      const separator = ext === '.tsv' ? '\t' : ',';
+      const headers = content.split('\n')[0].split(separator).map(h => h.trim().replace(/"/g, ''));
       return { columns: headers.map(h => ({ name: h, type: 'string', description: '', nullable: true })) };
     }
+
     if (ext === '.json') {
       const data = JSON.parse(content);
       const sample = Array.isArray(data) ? data[0] : data;
@@ -407,16 +421,30 @@ router.post('/', protect, upload.array('files', 5), enforceNoPII(['title', 'desc
     if (!files.length) {
       return res.status(400).json({ success: false, message: 'At least one file is required' });
     }
+
+    if (!isBlobStorageConfigured()) {
+      return res.status(503).json({
+        success: false,
+        message: 'File storage is not configured. Set BLOB_READ_WRITE_TOKEN to enable uploads.'
+      });
+    }
+
     const processedFiles = [];
     let sampleRecords = [];
     let schema = { columns: [] };
     let stats = { rows: 0, columns: 0, size: 0 };
 
     for (const file of files) {
+      const blobAsset = await uploadBufferToBlob(file, { folder: 'datasets' });
+      const fallbackName = file.originalname || `file-${Date.now()}`;
+      const storedFilename = blobAsset.pathname
+        ? blobAsset.pathname.split('/').filter(Boolean).pop()
+        : fallbackName;
+
       processedFiles.push({
         originalName: file.originalname,
-        filename: file.filename,
-        path: file.path,
+        filename: storedFilename,
+        path: blobAsset.url,
         size: file.size,
         mimetype: file.mimetype
       });
@@ -547,9 +575,13 @@ router.delete('/:id', protect, async (req, res) => {
       return res.status(403).json({ success: false, message: 'Not authorized' });
     }
 
-    // Delete files
-    for (const file of dataset.files) {
-      if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+    // Delete remote blob assets if they exist.
+    for (const file of dataset.files || []) {
+      try {
+        await deleteBlobAsset(file.path);
+      } catch (blobDeleteError) {
+        console.error('Blob cleanup failed:', blobDeleteError.message);
+      }
     }
 
     await Dataset.findByIdAndDelete(req.params.id);
@@ -612,7 +644,9 @@ router.post('/:id/download', protect, async (req, res) => {
       message: 'Download recorded',
       files: dataset.files.map(f => ({
         originalName: f.originalName,
-        downloadUrl: `/api/datasets/${req.params.id}/file/${f.filename}`
+        downloadUrl: isAbsoluteHttpUrl(f.path)
+          ? f.path
+          : `/api/datasets/${req.params.id}/file/${f.filename}`
       }))
     });
   } catch (error) {
@@ -640,11 +674,14 @@ router.get('/:id/file/:filename', protect, async (req, res) => {
       return res.status(404).json({ success: false, message: 'File not found' });
     }
 
-    if (!fs.existsSync(file.path)) {
-      return res.status(404).json({ success: false, message: 'File missing on server' });
+    if (isAbsoluteHttpUrl(file.path)) {
+      return res.redirect(file.path);
     }
 
-    res.download(file.path, file.originalName || file.filename);
+    return res.status(410).json({
+      success: false,
+      message: 'File is not available for direct download in this deployment.'
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to download file' });
   }

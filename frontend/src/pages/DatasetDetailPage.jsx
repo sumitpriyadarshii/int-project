@@ -5,6 +5,7 @@ import { datasetAPI, discussionAPI } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 
 const socketBaseUrl = import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
+const realtimeEnabled = import.meta.env.VITE_ENABLE_REALTIME === "true";
 
 export default function DatasetDetailPage() {
   const { id } = useParams();
@@ -107,6 +108,10 @@ export default function DatasetDetailPage() {
   }, [loadDatasetBundle, applyDatasetBundle]);
 
   useEffect(() => {
+    if (!realtimeEnabled) {
+      return undefined;
+    }
+
     const token = localStorage.getItem("token");
     if (!token) {
       return undefined;

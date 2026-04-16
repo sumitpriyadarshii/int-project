@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const User = require('../models/User');
 const Dataset = require('../models/Dataset');
 const Discussion = require('../models/Discussion');
@@ -11,6 +9,11 @@ const ContentFlag = require('../models/ContentFlag');
 const AuditLog = require('../models/AuditLog');
 const { protect, authorize } = require('../middleware/auth');
 const { invalidateCacheByPrefix } = require('../utils/cache');
+const {
+  isBlobStorageConfigured,
+  uploadBufferToBlob,
+  deleteBlobAsset
+} = require('../utils/blobStorage');
 
 const DATASET_CACHE_PREFIX = 'datasets:';
 
@@ -22,20 +25,8 @@ const invalidateDatasetCaches = async () => {
   }
 };
 
-const announcementStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '../uploads/announcements');
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
 const announcementUpload = multer({
-  storage: announcementStorage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 100 * 1024 * 1024 }
 });
 
@@ -153,14 +144,31 @@ router.post('/announcements', announcementUpload.single('attachment'), async (re
       return res.status(400).json({ success: false, message: 'Announcement message is required' });
     }
 
-    const attachmentUrl = req.file ? `/uploads/announcements/${req.file.filename}` : '';
+    let attachmentUrl = '';
+    let attachmentName = '';
+    let attachmentSize = 0;
+
+    if (req.file) {
+      if (!isBlobStorageConfigured()) {
+        return res.status(503).json({
+          success: false,
+          message: 'Attachment storage is not configured. Set BLOB_READ_WRITE_TOKEN first.'
+        });
+      }
+
+      const blobAsset = await uploadBufferToBlob(req.file, { folder: 'announcements' });
+      attachmentUrl = blobAsset.url;
+      attachmentName = req.file.originalname;
+      attachmentSize = req.file.size;
+    }
+
     const announcement = await Announcement.create({
       title: title ? title.trim() : '',
       message: message.trim(),
       link: link.trim(),
-      attachmentName: req.file ? req.file.originalname : '',
+      attachmentName,
       attachmentUrl,
-      attachmentSize: req.file ? req.file.size : 0,
+      attachmentSize,
       createdBy: req.user._id
     });
 
@@ -169,9 +177,9 @@ router.post('/announcements', announcementUpload.single('attachment'), async (re
       announcementId: announcement._id,
       message: `${title && title.trim() ? `${title.trim()}: ` : ''}${message.trim()}`,
       link: attachmentUrl || link.trim(),
-      attachmentName: req.file ? req.file.originalname : '',
+      attachmentName,
       attachmentUrl,
-      attachmentSize: req.file ? req.file.size : 0,
+      attachmentSize,
       read: false,
       createdAt: new Date()
     };
@@ -194,8 +202,11 @@ router.delete('/announcements/:id', async (req, res) => {
     if (!announcement) return res.status(404).json({ success: false, message: 'Announcement not found' });
 
     if (announcement.attachmentUrl) {
-      const attachmentPath = path.join(__dirname, '..', announcement.attachmentUrl.replace('/uploads/', 'uploads/'));
-      fs.unlink(attachmentPath, () => {});
+      try {
+        await deleteBlobAsset(announcement.attachmentUrl);
+      } catch (blobDeleteError) {
+        console.error('Announcement attachment cleanup failed:', blobDeleteError.message);
+      }
     }
 
     await Promise.all([

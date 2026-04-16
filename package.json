@@ -5,6 +5,7 @@
     "dev": "concurrently -n backend,frontend -c magenta,cyan \"npm run dev:backend\" \"npm run dev:frontend\""
   },
   "dependencies": {
+    "@vercel/speed-insights": "^2.0.0",
     "express-session": "^1.19.0",
     "nodemailer": "^8.0.5",
     "passport": "^0.7.0",

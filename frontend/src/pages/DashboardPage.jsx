@@ -5,6 +5,7 @@ import DatasetCard from "../components/DatasetCard";
 import { datasetAPI } from "../api/client";
 
 const socketBaseUrl = import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
+const realtimeEnabled = import.meta.env.VITE_ENABLE_REALTIME === "true";
 
 export default function DashboardPage() {
   const [datasets, setDatasets] = useState([]);
@@ -31,6 +32,10 @@ export default function DashboardPage() {
   }, [fetchData]);
 
   useEffect(() => {
+    if (!realtimeEnabled) {
+      return undefined;
+    }
+
     const token = localStorage.getItem("token");
     if (!token) {
       return undefined;

@@ -4,9 +4,9 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js",
-    "start:prod": "powershell -NoProfile -Command \"$env:NODE_ENV='production'; node server.js\"",
+    "dev": "nodemon dev-server.js",
+    "start": "node dev-server.js",
+    "start:prod": "powershell -NoProfile -Command \"$env:NODE_ENV='production'; node dev-server.js\"",
     "seed:datasets": "node scripts/seed-datasets.js",
     "reset:downloads": "node scripts/reset-download-counts.js",
     "clean": "powershell -NoProfile -Command \"$ports=@(5000,5173); foreach($p in $ports){ Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue } }; exit 0\"",
@@ -16,8 +16,12 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=20"
+  },
   "type": "commonjs",
   "dependencies": {
+    "@vercel/blob": "^2.3.3",
     "bcryptjs": "^3.0.3",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.7",
@@ -35,8 +39,7 @@
     "nodemailer": "^8.0.5",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "redis": "^5.12.1",
-    "socket.io": "^4.8.3"
+    "redis": "^5.12.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

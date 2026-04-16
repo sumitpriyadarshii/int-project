@@ -1,7 +1,7 @@
 {
-  "watch": ["server.js", "routes", "models", "middleware"],
+  "watch": ["dev-server.js", "server.js", "api", "routes", "models", "middleware", "utils", "config"],
   "ext": "js",
-  "ignore": ["node_modules", "uploads", ".env", ".env.*"],
+  "ignore": ["node_modules", ".env", ".env.*"],
   "delay": 2500,
   "env": {
     "NODE_ENV": "development"
