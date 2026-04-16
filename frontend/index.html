@@ -1756,7 +1756,7 @@ const configuredApiUrl = '%VITE_API_URL%';
 const API_URL = (
   configuredApiUrl && configuredApiUrl !== '%VITE_API_URL%'
     ? configuredApiUrl
-    : `${window.location.protocol}//${window.location.hostname}:5000/api`
+    : `${window.location.origin}/api`
 ).replace(/\/+$/, '');
 
 // ===================== STATE =====================
