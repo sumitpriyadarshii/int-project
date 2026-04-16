@@ -2,4 +2,7 @@ require('dotenv').config({ quiet: true });
 
 const { createUnifiedApp } = require('./api/_core');
 
-module.exports = createUnifiedApp();
+const app = createUnifiedApp();
+
+module.exports = app;
+module.exports.default = app;
