@@ -234,7 +234,7 @@ const createUnifiedApp = () => {
   const app = express();
   attachCommonMiddleware(app);
 
-  app.get('/health', (req, res) => {
+  app.get(['/health', '/api/health'], (req, res) => {
     res.json({
       status: 'OK',
       uptime: process.uptime(),
@@ -243,12 +243,20 @@ const createUnifiedApp = () => {
     });
   });
 
-  app.use('/api', apiRateLimiter);
-  app.use('/api', mutationRateLimiter);
+  app.use(apiRateLimiter);
+  app.use(mutationRateLimiter);
+
   app.use('/api/auth', authRateLimiter, authRoutes);
+  app.use('/auth', authRateLimiter, authRoutes);
+
   app.use('/api/datasets', datasetRoutes);
+  app.use('/datasets', datasetRoutes);
+
   app.use('/api/discussions', discussionRoutes);
+  app.use('/discussions', discussionRoutes);
+
   app.use('/api/admin', adminRateLimiter, adminRoutes);
+  app.use('/admin', adminRateLimiter, adminRoutes);
 
   addErrorHandlers(app);
   return app;
