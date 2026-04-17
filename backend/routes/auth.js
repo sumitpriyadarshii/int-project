@@ -56,20 +56,80 @@ const generateUniqueUsername = async (seed) => {
   return candidate;
 };
 
-const getClientRedirectBase = (req) => {
-  const configuredClientUrl =
-    process.env.FRONTEND_URL ||
-    process.env.CLIENT_URL ||
-    process.env.CLIENT_ORIGIN ||
-    (process.env.CLIENT_URLS || '').split(',').map((entry) => entry.trim()).find(Boolean);
+const trimTrailingSlashes = (value) => String(value || '').trim().replace(/\/+$/, '');
 
-  if (configuredClientUrl) {
-    return configuredClientUrl.replace(/\/+$/, '');
+const normalizeClientUrl = (value) => {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) {
+    return '';
   }
 
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimTrailingSlashes(trimmed);
+  }
+
+  if (/^[a-z0-9.-]+\.[a-z]{2,}(:\d+)?$/i.test(trimmed)) {
+    return trimTrailingSlashes(`https://${trimmed}`);
+  }
+
+  return trimTrailingSlashes(trimmed);
+};
+
+const isLocalClientUrl = (value) => {
+  const normalized = normalizeClientUrl(value);
+  if (!normalized) {
+    return false;
+  }
+
+  try {
+    const parsed = new URL(normalized);
+    return ['localhost', '127.0.0.1', '::1'].includes(parsed.hostname);
+  } catch (_) {
+    return /(^|:\/\/)(localhost|127\.0\.0\.1|::1)(:|\/|$)/i.test(normalized);
+  }
+};
+
+const getConfiguredClientUrls = () => {
+  const configured = [];
+
+  configured.push(process.env.FRONTEND_URL);
+  configured.push(process.env.CLIENT_URL);
+  configured.push(process.env.CLIENT_ORIGIN);
+
+  configured.push(
+    ...String(process.env.CLIENT_URLS || '')
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter(Boolean)
+  );
+
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    configured.push(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`);
+  }
+
+  if (process.env.VERCEL_URL) {
+    configured.push(`https://${process.env.VERCEL_URL}`);
+  }
+
+  return configured;
+};
+
+const getClientRedirectBase = (req) => {
+  const isProduction = process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL);
   const requestOrigin = String(req.headers.origin || '').trim();
-  if (requestOrigin) {
-    return requestOrigin.replace(/\/+$/, '');
+  const candidates = [...getConfiguredClientUrls(), requestOrigin];
+
+  for (const candidate of candidates) {
+    const normalized = normalizeClientUrl(candidate);
+    if (!normalized) {
+      continue;
+    }
+
+    if (isProduction && isLocalClientUrl(normalized)) {
+      continue;
+    }
+
+    return normalized;
   }
 
   return 'http://localhost:5173';
