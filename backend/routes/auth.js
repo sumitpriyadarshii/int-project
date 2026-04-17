@@ -58,6 +58,7 @@ const generateUniqueUsername = async (seed) => {
 
 const getClientRedirectBase = (req) => {
   const configuredClientUrl =
+    process.env.FRONTEND_URL ||
     process.env.CLIENT_URL ||
     process.env.CLIENT_ORIGIN ||
     (process.env.CLIENT_URLS || '').split(',').map((entry) => entry.trim()).find(Boolean);
