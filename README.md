@@ -1,93 +1,209 @@
 # DataVerse Hub
 
-Full-stack dataset collaboration platform with a polished React frontend and a realtime Node.js backend.
+DataVerse Hub is a full-stack data collaboration platform for publishing, discovering, and discussing datasets.
 
-## What it does
+This is the main project documentation file. Detailed technical docs are available in the `Docs` folder.
 
-- Users can register, log in, and keep a persistent session with remember-me support.
-- Contributors can upload CSV or JSON datasets with metadata about collection and usage.
-- Other users can search by topic, preview sample rows, request access, and download datasets.
-- Downloads are tracked and contributor credits are aggregated into a leaderboard.
-- Discussion threads let users rate data quality and suggest improvements in realtime.
+## Team Members
 
-## Project Structure
+- Sumit Priyadarshi (12402145)
+- Monu Kumar (12408795)
+- Jwitesh sharma (12401559)
 
-- `frontend` - React app with Framer Motion and React Three Fiber visuals
-- `backend` - Express API, Socket.IO realtime events, and MongoDB/Mongoose persistence
+## Important Note
 
-## Backend Setup
+If you need deeper details beyond this main README, open the files in `Docs/`.
+This README gives the full project overview, and `Docs/` gives module-level depth.
 
-1. Open `backend/.env.example` and copy it to `backend/.env`.
-2. Fill in either `MONGO_URI` for a local MongoDB instance or the Atlas variables:
-   - `MONGO_USERNAME`
-   - `MONGO_PASSWORD`
-   - `MONGO_CLUSTER`
-   - `MONGO_DB_NAME`
-3. (Optional) Enable Google OAuth by setting:
-   - `GOOGLE_CLIENT_ID`
-   - `GOOGLE_CLIENT_SECRET`
-   - `GOOGLE_CALLBACK_URL` (for local dev: `http://localhost:5000/api/auth/google/callback`)
-4. Start the backend:
+## Documentation Map
 
-```bash
-cd backend
-npm install
-npm run dev
+- `Docs/README.md` - docs index and reading order
+- `Docs/BACKEND_README.md` - backend setup, scripts, and architecture notes
+- `Docs/FRONTEND_README.md` - frontend setup and client integration notes
+- `Docs/API_REFERENCE.md` - route group and endpoint reference
+- `Docs/DEPLOYMENT_CHECKLIST.md` - release and production readiness checklist
+- `Docs/Visual_reference.md` - visual architecture and folder reference
+
+## Read This, Then Go Deeper
+
+- Start here in `README.md` for complete project understanding.
+- If you want backend-only details, go to `Docs/BACKEND_README.md`.
+- If you want frontend-only details, go to `Docs/FRONTEND_README.md`.
+- If you want endpoint details, go to `Docs/API_REFERENCE.md`.
+- If you are deploying, follow `Docs/DEPLOYMENT_CHECKLIST.md`.
+- If you want architecture visuals, open `Docs/Visual_reference.md`.
+
+
+## What The Project Does
+
+- User authentication with JWT and optional Google OAuth.
+- Dataset upload, metadata management, preview, search, and download.
+- Discussion and feedback workflows for data quality and collaboration.
+- Admin-friendly moderation and operational controls.
+- Deployment options for both split hosting and serverless routing.
+
+## Core User Workflows
+
+- Sign up or log in to access protected features.
+- Browse datasets from dashboard and search/filter by relevance.
+- Open dataset details to preview data and request access/download.
+- Upload datasets with metadata for contributors and research use.
+- Create discussions and replies to improve quality and collaboration.
+
+## Tech Stack
+
+- Frontend: React, Vite, Axios, React Router, Framer Motion, Three.js
+- Backend: Node.js, Express, Mongoose, Passport, Multer
+- Data and platform services: MongoDB, Redis (optional), Vercel Blob (optional), Nodemailer
+
+## Repository Layout
+
+```text
+.
+|-- README.md
+|-- Docs/
+|   |-- README.md
+|   |-- BACKEND_README.md
+|   |-- FRONTEND_README.md
+|   |-- API_REFERENCE.md
+|   |-- DEPLOYMENT_CHECKLIST.md
+|   `-- Visual_reference.md
+|-- frontend/              # React client app
+|-- backend/               # Express API + serverless handlers
+|-- api/                   # Root Vercel API bridge
+`-- vercel.json
 ```
 
-## Frontend Setup
+## Service Architecture
 
-1. Copy `frontend/.env.example` to `frontend/.env`.
-2. Start the frontend:
+- Frontend (`frontend/`) communicates with backend via API requests.
+- Backend (`backend/`) handles auth, datasets, discussions, and admin logic.
+- Database persistence is handled via MongoDB models.
+- Optional Redis improves response speed for cached routes.
+- Optional blob storage supports deployed file upload/download handling.
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+## Quick Start
 
-## API Summary
-
-- Auth: `/api/auth/register`, `/api/auth/login`, `/api/auth/logout`, `/api/auth/me`
-- Datasets: list, create, preview, download, access requests, credits leaderboard
-- Discussions: realtime comments and quality suggestions by dataset
-
-## Notes
-
-- Uploaded files are saved in `backend/uploads`.
-- The backend automatically builds an Atlas connection string from the Atlas env fields when `MONGO_URI` is not set.
-- If neither `MONGO_URI` nor Atlas fields are provided, the backend falls back to an in-memory MongoDB for local development.
-- For security, passwords are not stored in the browser; the app remembers the login session and the last email used for sign-in.
-
-## Run Both Apps In One Terminal
+### 1) Install dependencies
 
 From project root:
 
 ```bash
 npm install
+npm --prefix backend install
+npm --prefix frontend install
+```
+
+### 2) Configure environment files
+
+- Copy `backend/.env.example` to `backend/.env`
+- Copy `frontend/.env.example` to `frontend/.env`
+
+Minimal values to set first:
+
+- Backend: `JWT_SECRET`, Mongo connection (`MONGO_URI` or Atlas envs), `FRONTEND_URL`/`CLIENT_URLS`
+- Frontend: `VITE_API_URL`, `VITE_SOCKET_URL`
+
+### 3) Run both services
+
+```bash
 npm run dev
 ```
 
-## Deployment (Recommended)
+This starts:
 
-This project works best with split hosting:
+- Backend: `http://localhost:5000`
+- Frontend: `http://localhost:5173`
 
-- Frontend: Vercel (`frontend`)
-- Backend: Render/Railway/VM (`backend`)
+### 4) Validate service health
 
-Reason: the backend uses Socket.IO realtime connections and file uploads, which are not a great fit for Vercel serverless runtime.
+- `GET http://localhost:5000/health`
+- `GET http://localhost:5000/api/health`
 
-### Frontend on Vercel
+## Development Scripts
 
-1. Import this GitHub repository into Vercel.
-2. Set **Root Directory** to `frontend`.
-3. Set environment variables in Vercel:
-   - `VITE_API_URL=https://<your-backend-domain>/api`
-   - `VITE_SOCKET_URL=https://<your-backend-domain>`
-4. Deploy.
+From root:
 
-### Backend on Render/Railway
+- `npm run dev` - run backend + frontend together
+- `npm run dev:backend` - run backend only
+- `npm run dev:frontend` - run frontend only
 
-1. Deploy the `backend` folder as a Node service.
-2. Set environment variables from `backend/.env.example`.
-3. Ensure `CLIENT_URL` / `CLIENT_URLS` includes your Vercel frontend domain.
+Detailed module scripts are documented in:
+
+- `Docs/BACKEND_README.md`
+- `Docs/FRONTEND_README.md`
+
+Common backend utility scripts include seeding datasets and resetting download counters.
+See exact usage in `Docs/BACKEND_README.md`.
+
+## API Summary
+
+Base API URL in local development: `http://localhost:5000/api`
+
+Main route groups:
+
+- `/auth`
+- `/datasets`
+- `/discussions`
+- `/admin`
+- `/health`
+
+See `Docs/API_REFERENCE.md` for endpoint-level guidance.
+
+For frontend integration behavior (token handling, axios setup), see `Docs/FRONTEND_README.md`.
+
+## Environment Variables (Overview)
+
+Backend commonly required variables:
+
+- `JWT_SECRET`
+- `NODE_ENV`
+- `PORT`
+- `MONGO_URI` or Atlas variables (`MONGO_USERNAME`, `MONGO_PASSWORD`, `MONGO_CLUSTER`, `MONGO_DB_NAME`)
+- `FRONTEND_URL` / `CLIENT_URLS`
+
+Frontend variables:
+
+- `VITE_API_URL`
+- `VITE_SOCKET_URL`
+- `VITE_ENABLE_REALTIME`
+
+Optional backend features:
+
+- Redis caching via `REDIS_URL`
+- Blob storage via `BLOB_READ_WRITE_TOKEN`
+- PII filtering via `PII_GUARD_ENABLED`
+- OAuth via Google client variables
+
+## Deployment Summary
+
+Recommended deployment pattern:
+
+- Frontend on Vercel (`frontend`)
+- Backend on a long-running Node host (Render, Railway, VM)
+
+Serverless handlers are also available in `backend/api/*` and bridged from `api/index.js`.
+
+Use `Docs/DEPLOYMENT_CHECKLIST.md` before every production release.
+
+For deployment architecture visuals, see `Docs/Visual_reference.md`.
+
+## Testing Status
+
+- Frontend includes lint/build scripts for verification.
+- Backend `npm test` is currently a placeholder (`No tests configured yet`).
+- For release quality, combine build checks with health/API smoke checks from the deployment checklist.
+
+## Detailed Docs Reference (Quick Access)
+
+- Project docs index: `Docs/README.md`
+- Backend deep dive: `Docs/BACKEND_README.md`
+- Frontend deep dive: `Docs/FRONTEND_README.md`
+- API details: `Docs/API_REFERENCE.md`
+- Deployment steps: `Docs/DEPLOYMENT_CHECKLIST.md`
+- Visual architecture: `Docs/Visual_reference.md`
+
+## Notes
+
+- Keep `README.md` as the project-level main guide.
+- Keep detailed module docs inside `Docs/` for cleaner structure and easier onboarding.
