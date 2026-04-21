@@ -164,6 +164,11 @@ const stripPrefix = (prefix) => {
 };
 
 const addErrorHandlers = (app) => {
+  const isDatabaseAuthError = (message) => {
+    const normalized = String(message || '').toLowerCase();
+    return normalized.includes('bad auth') || normalized.includes('authentication failed');
+  };
+
   app.use((req, res) => {
     res.status(404).json({ success: false, message: 'Route not found' });
   });
@@ -171,9 +176,14 @@ const addErrorHandlers = (app) => {
   app.use((err, req, res, next) => {
     console.error('Error:', err.message);
     const status = err.status || 500;
+    const normalizedMessage = String(err?.message || '');
+    const safeMessage = isDatabaseAuthError(normalizedMessage)
+      ? 'Database connection failed. Please try again later.'
+      : normalizedMessage || 'Internal server error';
+
     res.status(status).json({
       success: false,
-      message: err.message || 'Internal server error',
+      message: safeMessage,
       ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
     });
   });

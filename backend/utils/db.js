@@ -34,25 +34,30 @@ const shouldUseMemoryServer = () => {
   return !isProduction && explicit === 'true';
 };
 
-const resolveMongoUri = async () => {
+const resolveMongoUris = async () => {
+  const candidates = [];
   const directUri = toEnvValue(process.env.MONGO_URI || process.env.MONGODB_URI);
   if (directUri) {
-    return directUri;
+    candidates.push(directUri);
   }
 
   const atlasUri = buildAtlasUri();
-  if (atlasUri) {
-    return atlasUri;
+  if (atlasUri && !candidates.includes(atlasUri)) {
+    candidates.push(atlasUri);
+  }
+
+  if (candidates.length) {
+    return candidates;
   }
 
   if (shouldUseMemoryServer()) {
     if (!dbState.memoryServer) {
       dbState.memoryServer = await MongoMemoryServer.create();
     }
-    return dbState.memoryServer.getUri('dataverse');
+    return [dbState.memoryServer.getUri('dataverse')];
   }
 
-  return 'mongodb://127.0.0.1:27017/dataverse';
+  return ['mongodb://127.0.0.1:27017/dataverse'];
 };
 
 const connectToDatabase = async () => {
@@ -62,15 +67,32 @@ const connectToDatabase = async () => {
 
   if (!dbState.connectionPromise) {
     dbState.connectionPromise = (async () => {
-      const mongoUri = await resolveMongoUri();
-      dbState.resolvedUri = mongoUri;
+      const candidateUris = await resolveMongoUris();
+      let lastError = null;
 
-      const connection = await mongoose.connect(mongoUri, {
-        maxPoolSize: Number.parseInt(process.env.MONGO_MAX_POOL_SIZE || '10', 10),
-        serverSelectionTimeoutMS: Number.parseInt(process.env.MONGO_SERVER_SELECTION_TIMEOUT_MS || '10000', 10)
-      });
+      for (const mongoUri of candidateUris) {
+        try {
+          const connection = await mongoose.connect(mongoUri, {
+            maxPoolSize: Number.parseInt(process.env.MONGO_MAX_POOL_SIZE || '10', 10),
+            serverSelectionTimeoutMS: Number.parseInt(process.env.MONGO_SERVER_SELECTION_TIMEOUT_MS || '10000', 10)
+          });
 
-      return connection;
+          dbState.resolvedUri = mongoUri;
+          return connection;
+        } catch (error) {
+          lastError = error;
+
+          if (mongoose.connection.readyState !== 0) {
+            try {
+              await mongoose.connection.close();
+            } catch (_) {
+              // Ignore close errors while rotating fallback connection attempts.
+            }
+          }
+        }
+      }
+
+      throw lastError || new Error('Unable to connect to MongoDB');
     })().catch((error) => {
       dbState.connectionPromise = null;
       throw error;

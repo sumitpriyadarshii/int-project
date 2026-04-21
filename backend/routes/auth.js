@@ -404,7 +404,9 @@ router.post('/register', async (req, res) => {
 // @route   POST /api/auth/login
 router.post('/login', async (req, res) => {
   try {
-    const { emailOrUsername, password, rememberMe } = req.body;
+    const credentialInput = req.body?.emailOrUsername || req.body?.email || req.body?.username || '';
+    const emailOrUsername = String(credentialInput || '').trim();
+    const { password, rememberMe } = req.body;
     const clientIp = getClientIp(req);
     const userAgent = String(req.headers['user-agent'] || '').slice(0, 500);
     const authIdentity = normalizeIdentity(emailOrUsername);
