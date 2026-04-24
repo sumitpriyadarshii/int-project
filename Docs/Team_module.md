@@ -1,0 +1,142 @@
+# DATAverse Team Module Report (Backend + UI + Database)
+
+## Role Overview and Module Allocation
+
+![Team Module Allocation](images/team_roles_allocation.svg)
+
+- Sumit Priyadarshi -> Backend
+- Monu Kumar -> UI and Frontend
+- Jwitesh Sharma -> Database and Integration
+
+## Team Members and Ownership
+
+- Sumit Priyadarshi: Project leader and backend development owner
+- Monu Kumar: UI and frontend development owner
+- Jwitesh Sharma: Database development and integration owner
+
+## Report Objective
+
+This document provides complete module-level contribution evidence for all three members of DATAverse. It includes backend, UI/frontend, and database responsibilities with file-level ownership.
+
+## Module 1: Backend (Owner: Sumit Priyadarshi)
+
+### Scope and Responsibilities
+
+- Build and maintain REST APIs for auth, datasets, discussions, and admin operations
+- Enforce validation, security, and authorization checks on protected workflows
+- Ensure runtime reliability for local server and serverless deployments
+- Maintain attachment upload integration and backend utility services
+
+### Backend Files and Components
+
+- backend/app.js
+- backend/server.js
+- backend/dev-server.js
+- backend/index.js
+- backend/health.js
+- backend/routes/auth.js
+- backend/routes/datasets.js
+- backend/routes/discussions.js
+- backend/routes/admin.js
+- backend/middleware/auth.js
+- backend/middleware/inputValidation.js
+- backend/middleware/security.js
+- backend/utils/db.js
+- backend/utils/cache.js
+- backend/utils/blobStorage.js
+- backend/utils/datasetQuality.js
+- backend/utils/mailer.js
+- backend/utils/piiGuard.js
+- backend/utils/securityEvents.js
+- backend/api/index.js
+- backend/api/health.js
+- backend/api/_core.js
+- backend/api/auth/[...auth].js
+- backend/api/datasets/[...datasets].js
+- backend/api/discussions/[...discussions].js
+- backend/api/admin/[...admin].js
+
+### Backend Outcomes
+
+- Stable API contract delivery for frontend integration
+- Secure route behavior with middleware enforcement
+- Improved startup and fault-handling reliability
+- Health endpoint support for deployment checks
+
+## Module 2: UI and Frontend (Owner: Monu Kumar)
+
+### Scope and Responsibilities
+
+- Build and maintain user interface for authentication and dashboard workflows
+- Maintain responsive design and user interaction quality
+- Integrate frontend with backend APIs and client-side data mapping
+- Ensure consistent component behavior across core user flows
+
+### UI and Frontend Files and Components
+
+- frontend/src/pages/AuthPage.jsx
+- frontend/src/pages/DashboardPage.jsx
+- frontend/src/pages/DatasetDetailPage.jsx
+- frontend/src/pages/UploadPage.jsx
+- frontend/src/components/Navbar.jsx
+- frontend/src/components/DatasetCard.jsx
+- frontend/src/components/ThreeBackdrop.jsx
+- frontend/src/context/AuthContext.jsx
+- frontend/src/api/client.js
+- frontend/src/App.jsx
+- frontend/src/App.css
+- frontend/src/index.css
+
+### UI Outcomes
+
+- End-to-end navigation flow for authentication and dataset exploration
+- Reusable component-based interface for maintainability
+- API-driven rendering with stable data mapping
+- Responsive behavior on major viewport sizes
+
+## Module 3: Database and Integration (Owner: Jwitesh Sharma)
+
+### Scope and Responsibilities
+
+- Design and maintain database schema aligned with application features
+- Integrate database behavior with backend models and APIs
+- Keep data consistency for create, read, update, and moderation workflows
+- Maintain scripts for migration, seed, and operational reset
+
+### Database Files and Components
+
+- backend/models/User.js
+- backend/models/Dataset.js
+- backend/models/Discussion.js
+- backend/models/Announcement.js
+- backend/models/AuditLog.js
+- backend/models/ContentFlag.js
+- backend/models/SecurityEvent.js
+- backend/scripts/seed-datasets.js
+- backend/scripts/reset-download-counts.js
+- backend/scripts/migrate-db-name.js
+- backend/utils/db.js
+
+### Database Outcomes
+
+- Schema support for user, dataset, and discussion lifecycle
+- Reliable model compatibility with backend routes
+- Migration and seed support for controlled project setup
+- Integration-ready data layer for full-stack workflows
+
+## Cross-Module Validation Checklist
+
+1. Auth flow works from frontend UI to backend API and database storage
+2. Dataset flow works for listing, details, upload, and download tracking
+3. Discussion flow works for create, reply, vote, and moderation actions
+4. Admin protection works with role checks and secure API restrictions
+5. Health checks confirm backend service and database connectivity
+6. UI rendering remains stable with API and schema-aligned payloads
+
+## Final Submission Note
+
+This file is the consolidated module report for all team members and clearly includes Backend, UI, and Database module contributions. Each section is detailed with scope, file ownership, and outcomes to provide a comprehensive view of the project work.
+
+## Date
+
+24 April 2026

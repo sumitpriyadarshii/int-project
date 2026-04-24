@@ -20,6 +20,8 @@ This README gives the full project overview, and `Docs/` gives module-level dept
 - `Docs/README.md` - docs index and reading order
 - `Docs/BACKEND_README.md` - backend setup, scripts, and architecture notes
 - `Docs/FRONTEND_README.md` - frontend setup and client integration notes
+- `Docs/Team_module.md` - combined role-specific backend, UI, and database module document
+- `Docs/Team_module.pdf` - final two-role module submission PDF with image
 - `Docs/API_REFERENCE.md` - route group and endpoint reference
 - `Docs/DEPLOYMENT_CHECKLIST.md` - release and production readiness checklist
 - `Docs/Visual_reference.md` - visual architecture and folder reference
@@ -29,6 +31,8 @@ This README gives the full project overview, and `Docs/` gives module-level dept
 - Start here in `README.md` for complete project understanding.
 - If you want backend-only details, go to `Docs/BACKEND_README.md`.
 - If you want frontend-only details, go to `Docs/FRONTEND_README.md`.
+- If you need role-wise module scope, go to `Docs/Team_module.md`.
+- If you need complete two-role module submission, go to `Docs/Team_module.pdf`.
 - If you want endpoint details, go to `Docs/API_REFERENCE.md`.
 - If you are deploying, follow `Docs/DEPLOYMENT_CHECKLIST.md`.
 - If you want architecture visuals, open `Docs/Visual_reference.md`.
@@ -199,6 +203,8 @@ For deployment architecture visuals, see `Docs/Visual_reference.md`.
 - Project docs index: `Docs/README.md`
 - Backend deep dive: `Docs/BACKEND_README.md`
 - Frontend deep dive: `Docs/FRONTEND_README.md`
+- Team module (role-wise): `Docs/Team_module.md`
+- Combined module PDF: `Docs/Team_module.pdf`
 - API details: `Docs/API_REFERENCE.md`
 - Deployment steps: `Docs/DEPLOYMENT_CHECKLIST.md`
 - Visual architecture: `Docs/Visual_reference.md`

@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="920" viewBox="0 0 1500 920" role="img" aria-label="DataVerse team module allocation">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f7fbff"/>
+      <stop offset="100%" stop-color="#eef7f1"/>
+    </linearGradient>
+    <linearGradient id="left" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0e4f85"/>
+      <stop offset="100%" stop-color="#1b7ec1"/>
+    </linearGradient>
+    <linearGradient id="right" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1d6f47"/>
+      <stop offset="100%" stop-color="#38a867"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="1500" height="920" fill="url(#bg)"/>
+
+  <text x="750" y="86" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="44" font-weight="700" fill="#17314b">
+    DataVerse Module Allocation
+  </text>
+  <text x="750" y="126" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#36556e">
+    Academic role split: Backend, UI Frontend, and Database Integration
+  </text>
+
+  <rect x="70" y="170" rx="24" ry="24" width="430" height="600" fill="url(#left)"/>
+  <rect x="535" y="170" rx="24" ry="24" width="430" height="600" fill="#1b7ec1"/>
+  <rect x="1000" y="170" rx="24" ry="24" width="430" height="600" fill="url(#right)"/>
+
+  <text x="285" y="250" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="32" font-weight="700" fill="#ffffff">
+    SUMIT PRIYADARSHI
+  </text>
+  <text x="285" y="290" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="24" fill="#d8edff">
+    Backend Module Owner
+  </text>
+
+  <text x="120" y="360" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#ffffff">- Auth, dataset, discussion, admin APIs</text>
+  <text x="120" y="404" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#ffffff">- Security middleware and validation</text>
+  <text x="120" y="448" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#ffffff">- Runtime and health reliability</text>
+  <text x="120" y="492" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#ffffff">- Serverless deployment readiness</text>
+  <text x="120" y="536" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#ffffff">- Stable API contract support</text>
+
+  <text x="750" y="250" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="32" font-weight="700" fill="#ffffff">
+    MONU KUMAR
+  </text>
+  <text x="750" y="290" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="24" fill="#e3ffe9">
+    UI and Frontend Module Owner
+  </text>
+
+  <text x="585" y="360" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#ffffff">- Auth, dashboard, detail, upload screens</text>
+  <text x="585" y="404" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#ffffff">- Reusable components and navigation UX</text>
+  <text x="585" y="448" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#ffffff">- API client mapping and UI data flow</text>
+  <text x="585" y="492" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#ffffff">- Responsive behavior and quality checks</text>
+  <text x="585" y="536" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#ffffff">- Visual consistency and usability</text>
+
+  <text x="1215" y="250" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="32" font-weight="700" fill="#ffffff">
+    JWITESH SHARMA
+  </text>
+  <text x="1215" y="290" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="24" fill="#e3ffe9">
+    Database Module Owner
+  </text>
+
+  <text x="1050" y="360" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#ffffff">- DB schema design and field alignment</text>
+  <text x="1050" y="404" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#ffffff">- Integration with backend models</text>
+  <text x="1050" y="448" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#ffffff">- Query and index readiness support</text>
+  <text x="1050" y="492" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#ffffff">- Seed, reset, and migration consistency</text>
+  <text x="1050" y="536" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#ffffff">- Data integrity and validation coverage</text>
+
+  <line x1="730" y1="790" x2="770" y2="790" stroke="#395871" stroke-width="4"/>
+  <text x="750" y="840" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="600" fill="#17314b">
+    Shared Objective: Reliable end-to-end platform delivery
+  </text>
+</svg>

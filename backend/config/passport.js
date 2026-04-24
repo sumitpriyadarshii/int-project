@@ -3,8 +3,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 const googleOAuthConfigured = Boolean(
   process.env.GOOGLE_CLIENT_ID &&
-  process.env.GOOGLE_CLIENT_SECRET &&
-  process.env.GOOGLE_CALLBACK_URL
+  process.env.GOOGLE_CLIENT_SECRET
 );
 
 if (googleOAuthConfigured) {
@@ -12,8 +11,7 @@ if (googleOAuthConfigured) {
     new GoogleStrategy(
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: process.env.GOOGLE_CALLBACK_URL
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET
       },
       (accessToken, refreshToken, profile, done) => {
         try {
