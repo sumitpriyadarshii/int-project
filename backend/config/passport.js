@@ -1,6 +1,12 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
+const trimTrailingSlashes = (value) => String(value || '').trim().replace(/\/+$/, '');
+
+const googleCallbackURL = trimTrailingSlashes(
+  process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5000/api/auth/google/callback'
+);
+
 const googleOAuthConfigured = Boolean(
   process.env.GOOGLE_CLIENT_ID &&
   process.env.GOOGLE_CLIENT_SECRET
@@ -11,7 +17,8 @@ if (googleOAuthConfigured) {
     new GoogleStrategy(
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: googleCallbackURL
       },
       (accessToken, refreshToken, profile, done) => {
         try {
