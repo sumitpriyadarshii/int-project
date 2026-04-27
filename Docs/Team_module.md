@@ -22,8 +22,10 @@ This document provides complete module-level contribution evidence for all three
 
 ### Scope and Responsibilities
 
-- Build and maintain REST APIs for auth, datasets, discussions, and admin operations
-- Enforce validation, security, and authorization checks on protected workflows
+- Build and maintain a modular backend architecture for auth, datasets, discussions, and admin APIs
+- Enforce JWT authentication, validation middleware, and authorization checks on protected workflows
+- Maintain security controls across routes, inputs, and operational monitoring layers
+- Support real-time communication flow through Socket.IO integration with core API services
 - Ensure runtime reliability for local server and serverless deployments
 - Maintain attachment upload integration and backend utility services
 
@@ -60,6 +62,7 @@ This document provides complete module-level contribution evidence for all three
 
 - Stable API contract delivery for frontend integration
 - Secure route behavior with middleware enforcement
+- Real-time backend communication support for live update scenarios
 - Improved startup and fault-handling reliability
 - Health endpoint support for deployment checks
 
@@ -68,8 +71,11 @@ This document provides complete module-level contribution evidence for all three
 ### Scope and Responsibilities
 
 - Build and maintain user interface for authentication and dashboard workflows
+- API Integration Layer: connect frontend with backend APIs using Axios for dynamic data communication
+- Authentication Flow Handling: manage token handling, protected routes, and session continuity
+- System Integration: ensure smooth frontend to backend communication, including Socket.IO real-time updates
+- Testing and Validation: verify API behavior, integration flow, and error-handling reliability
 - Maintain responsive design and user interaction quality
-- Integrate frontend with backend APIs and client-side data mapping
 - Ensure consistent component behavior across core user flows
 
 ### UI and Frontend Files and Components
@@ -87,11 +93,19 @@ This document provides complete module-level contribution evidence for all three
 - frontend/src/App.css
 - frontend/src/index.css
 
+### Testing and Validation
+
+- API testing for request and response correctness across core endpoints
+- Integration testing for frontend to backend communication workflows
+- Error-handling testing for failed requests, invalid payloads, and session edge cases
+
 ### UI Outcomes
 
-- End-to-end navigation flow for authentication and dataset exploration
+- Frontend integrated with backend APIs for dynamic data communication
+- Authentication flow managed with tokens and protected routes
+- Smooth frontend to backend communication including real-time Socket.IO updates
+- Testing-backed reliability for API responses and integrated system behavior
 - Reusable component-based interface for maintainability
-- API-driven rendering with stable data mapping
 - Responsive behavior on major viewport sizes
 
 ## Module 3: Database and Integration (Owner: Jwitesh Sharma)
@@ -101,6 +115,7 @@ This document provides complete module-level contribution evidence for all three
 - Design and maintain database schema aligned with application features
 - Integrate database behavior with backend models and APIs
 - Keep data consistency for create, read, update, and moderation workflows
+- Apply optimization and indexing practices for query efficiency and performance stability
 - Maintain scripts for migration, seed, and operational reset
 
 ### Database Files and Components
@@ -121,6 +136,7 @@ This document provides complete module-level contribution evidence for all three
 
 - Schema support for user, dataset, and discussion lifecycle
 - Reliable model compatibility with backend routes
+- Indexing-aware query paths improve retrieval speed and operational efficiency
 - Migration and seed support for controlled project setup
 - Integration-ready data layer for full-stack workflows
 
@@ -139,4 +155,4 @@ This file is the consolidated module report for all team members and clearly inc
 
 ## Date
 
-24 April 2026
+27 April 2026
