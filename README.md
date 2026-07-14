@@ -6,7 +6,7 @@ This is the main project documentation file. Detailed technical docs are availab
 
 ## Developer
 
-- Sumit Priyadarshi (12402145)
+- Sumit Priyadarshi
 
 ## Important Note
 
